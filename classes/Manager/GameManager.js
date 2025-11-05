@@ -33,7 +33,7 @@ class GameManager{
         this.#gameState = "MENU";
         this.#isGameOver = true;
     }
-
+    //getters e setters
     get player() { return this.#player; }
     get enemies() { return this.#enemies; }
     get bullets() { return this.#bullets; }
@@ -46,7 +46,7 @@ class GameManager{
     get gameState() { return this.#gameState; }
     get isGameOver() { return this.#isGameOver; }
 
-
+    //inicia o jogo
     startGame(){
         this.#score = 0
 
@@ -87,7 +87,7 @@ class GameManager{
     }
 
     
-    
+    //desenha o jogo como um todo usa o switch para definir o que acntece em cada gamestate
     drawGame(){
         background(0)
 
@@ -124,7 +124,7 @@ class GameManager{
                 break;   
         }
     }
-
+    
     handleInput(keyCode){
         switch (this.#gameState){
             case "PLAYING":

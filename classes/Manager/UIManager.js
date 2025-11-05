@@ -30,7 +30,7 @@ class UIManager{
     set dengerColor(dengerColor) { this.#dangerColor = dengerColor; }
 
 
-
+    //desenha a hud que vai aparecer durante o jogo
     drawHud(health, maxHealth, lives, score, wave){
         
         push();
@@ -75,7 +75,7 @@ class UIManager{
     
     }
 
-
+    //desenha tela de menu com o maior score
     drawMenuScreen(highScore){
 
         push();
@@ -97,7 +97,7 @@ class UIManager{
         pop();
     }
 
-
+    //desenha a tela de gameover caso o player faça um novo highscore aparece na tela
     drawGameOverScreen(finalScore, isNewHighScore){
         push();
 
@@ -133,7 +133,7 @@ class UIManager{
             pop();
     }
 
-
+    //tela de pause
     drawPauseScreen(){
         push();
 
