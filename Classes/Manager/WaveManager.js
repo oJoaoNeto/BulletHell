@@ -1,7 +1,6 @@
 class WaveManager {
     #gameManager;
     #enemiesPerWave; 
-    #waveConfig;
     #waveNumber;
     #spawnTimer; 
     #timeSinceLastWave; 
@@ -11,9 +10,8 @@ class WaveManager {
 
     constructor(gameManager) {
         this.#gameManager = gameManager;
-        this.#enemiesPerWave = 5;
+        this.#enemiesPerWave = 10;
         this.#waveNumber = 0;
-        this.#waveConfig = [];
         this.#spawnTimer = 0;
         this.#timeSinceLastWave = 0;
         this.#enemiesToSpawn = 0;
