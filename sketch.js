@@ -2,10 +2,38 @@
 // João Neto: GameManager
 // Osman: Wave Manager
 
+let gameManager;
+let lastFrameTime = 0;
+
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight);
+  
+  
+  
+  // Inicializa o tempo do frame
+  lastFrameTime = millis();
+  
+  // Cria a instância principal do jogo
+  gameManager = new GameManager();
 }
 
 function draw() {
-  background(220);
+  // Calcula o deltaTime (tempo desde o último frame) em milissegundos
+  let currentmillis = millis();
+  let deltaTime = currentmillis - lastFrameTime;
+  lastFrameTime = currentmillis;
+
+  
+  gameManager.updateGame(deltaTime);
+  gameManager.drawGame();
+}
+
+
+function keyPressed() {
+  gameManager.handleInput(keyCode);
+}
+
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
