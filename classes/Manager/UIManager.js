@@ -80,7 +80,7 @@ class UIManager{
 
         push();
 
-        this.#drawFullScreenOverlay();
+        UIManager.drawFullScreenOverlay(this.#backgroundColor);
 
         fill(this.#primaryColor);
         textFont(this.#uiFont);
@@ -101,7 +101,7 @@ class UIManager{
     drawGameOverScreen(finalScore, isNewHighScore){
         push();
 
-        this.#drawFullScreenOverlay();
+        UIManager.drawFullScreenOverlay(this.#backgroundColor);
 
         fill(this.#dangerColor);
         textFont(this.#uiFont);
@@ -130,7 +130,7 @@ class UIManager{
     drawPauseScreen(){
         push();
 
-        this.#drawFullScreenOverlay();
+        UIManager.drawFullScreenOverlay(this.#backgroundColor);
         
         fill(this.primaryColor);
         textFont(this.#uiFont);
@@ -144,10 +144,10 @@ class UIManager{
         pop();
     }
 
-    #drawFullScreenOverlay(){
+    static drawFullScreenOverlay(color){
         push();
         noStroke();
-        fill(this.#backgroundColor);
+        fill(color);
         rect(0, 0, width, height);
         pop();
     }
