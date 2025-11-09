@@ -2,7 +2,7 @@ class GameManager{
     #player; 
     #enemies; 
     #bullets;
-    #powerups;
+    //#powerups;
 
 
     #uiManager;
@@ -16,20 +16,18 @@ class GameManager{
 
     constructor(){
 
-        //entidades
-        this.#player = new Player();
         this.#enemies = [];
         this.#bullets = [];
-        this.#powerups = [];
+        //this.#powerups = [];
 
         //passa a instancia do GameManeger para o WaveManeger
-        this.#waveManager = new this.#waveManager(this);
+        this.#waveManager = new WaveManager(this);
 
         this.#uiManager = new UIManager();
 
         this.#currentWave = 0;
         this.#score = 0;
-        this.#highScore = localStorage.getItem('HighScore')
+        this.#highScore = parseInt(localStorage.getItem('HighScore')) || 0;
         this.#gameState = "MENU";
         this.#isGameOver = true;
     }
@@ -37,7 +35,7 @@ class GameManager{
     get player() { return this.#player; }
     get enemies() { return this.#enemies; }
     get bullets() { return this.#bullets; }
-    get powerups() {return this.#powerups; }
+    //get powerups() {return this.#powerups; }
 
     get score() {return this.#score; }
     get highScore() {return this.#highScore; }
@@ -57,15 +55,15 @@ class GameManager{
     
         //resetar a posição das entidades
         this.#enemies = [];
-        this.#powerups = [];
+        //this.#powerups = [];
         this.#bullets = [];
 
-        this.player = new Player(width/2, height - 50);
+       this.#player = new Player(width/2, height - 50, 15, 300, 100, 3);
 
         //iniciar a primeira wave
         this.#waveManager.startWave(this.#currentWave)
     }
-
+ 
     //verificar se o pleyer esta vivo e se pode ir para proxima wave
     updateGame(deltaTime){
         if(this.#gameState === "PLAYING"){
@@ -73,17 +71,29 @@ class GameManager{
                 this.gameOver();
                 return;
             }
+            
             this.#player.update(deltaTime);
             this.#waveManager.update(deltaTime);
+
+            // Atualiza inimigos e coleta projéteis
+            for (let i = this.#enemies.length - 1; i >= 0; i--) {
+                const enemy = this.#enemies[i];
+                const newBullet = enemy.update(deltaTime, this.#player); // Passa o player como alvo
+                if (newBullet) {
+                    this.addBullets(newBullet);
+                }
+            }
+            // Atualiza projéteis
+            this.#bullets.forEach(b => b.update(deltaTime, width, height));
 
             this.checkCollisions();
             this.removeDeadEntities();
             
-            if(this.#waveManager.isWaveClear() || this.#enemies.length === 0){
+            // Correção: Lógica de próxima wave
+            if(this.#waveManager.isWaveClear()){
                 this.nextWave();
             }
         }
-        
     }
 
     
@@ -99,7 +109,7 @@ class GameManager{
             if(this.#player) this.#player.draw();
             this.#enemies.forEach(e => e.draw());
             this.#bullets.forEach(e => e.draw());
-            this.#powerups.forEach(e => e.draw());
+            //this.#powerups.forEach(e => e.draw());
         
             //HUD
             this.#uiManager.drawHud(
@@ -118,7 +128,7 @@ class GameManager{
             case "MENU":
                 this.#uiManager.drawMenuScreen(this.#highScore);
                 break;
-            case "Game_Over":
+            case "GAME_OVER":
                 let isNewHighScore = this.#score > this.#highScore;
                 this.#uiManager.drawGameOverScreen(this.#score, isNewHighScore);
                 break;   
@@ -128,15 +138,13 @@ class GameManager{
     handleInput(keyCode){
         switch (this.#gameState){
             case "PLAYING":
-                if(this.#player){
-                    this.#player.handleInput(keyCode);
-                }
-                if(keyCode === ESC){
+                
+                if(keyCode === ESCAPE){ 
                     this.pauseGame();
                 }
                 break;
             case "PAUSED":
-                if(keyCode === ESC){
+                if(keyCode === ESCAPE){ 
                     this.resumeGame();
                 }
                 break;
@@ -145,7 +153,7 @@ class GameManager{
                     this.startGame();
                 }
                 break;
-            case "GAME_OVER":
+            case "GAME_OVER": 
                 if(keyCode === ENTER){
                     this.#gameState = "MENU";
                 }
@@ -170,27 +178,27 @@ class GameManager{
         this.#checkPlayerBulletsVsEnemies(playerBullets);
         this.#checkEnemyBulletsVsPlayer(enemyBullets);
         this.#checkEnemyVsPlayer();
-        this.#checkPlayerVsPowerUps();
+        //this.#checkPlayerVsPowerUps();
 
 
     }
 
     #checkPlayerBulletsVsEnemies(playerBullets){
-
         for(let enemy of this.#enemies){
             if(!enemy.isAlive) continue;
-            for(let bullets of playerBullets){
-                if(!bullets.isAlive) continue;
+            
+            
+            for(let bullet of playerBullets){ 
+                if(!bullet.isAlive) continue;
 
                 if(this.#isColliding(bullet, enemy)){
-
-                    const enemyDied = enemy.takeDamage(bullet.damage);
-                    this.bullets.die(); 
+                    
+                    const result = enemy.takeDamage(bullet.damage); 
+                    bullet.die(); 
                 
-            
-                    if(enemyDied){
-                        this.updateScore(enemy.scoreValue);
-                        this.spawnPowerUp(enemy.position, 'random');
+                    if(result.died){ 
+                        this.updateScore(result.score);
+                        // this.spawnPowerUp(enemy.position, 'random');
                     }            
                 }
             }
@@ -211,20 +219,17 @@ class GameManager{
     }
 
     #checkEnemyVsPlayer(){
-
         for(let enemy of this.#enemies){
-
             if(!enemy.isAlive) continue; 
 
             if(this.#isColliding(enemy, this.#player)){
-                this.#player.takeDamage(10);
-
-                enemy.die();
+                this.#player.takeDamage(10); // Dano de colisão
+                enemy.takeDamage(1000); // Inimigo morre ao colidir
             }
         }
     }
 
-    #checkPlayerVsPowerUps(){
+   /* #checkPlayerVsPowerUps(){
         
         for(let powerup of this.#powerups){
 
@@ -235,13 +240,13 @@ class GameManager{
                 powerup.die();
             }
         }
-    }
+    }*/
 
     removeDeadEntities(){
 
         this.#enemies = this.#enemies.filter(enemy => enemy.isAlive);
         this.#bullets = this.#bullets.filter(bullets => bullets.isAlive);
-        this.#powerups = this.#powerups.filter(powerups => powerups.isAlive);
+        //this.#powerups = this.#powerups.filter(powerups => powerups.isAlive);
     }
 
     addEnemy(enemy){
@@ -254,7 +259,7 @@ class GameManager{
     /** 
     @param {p5.vector} position
     */
-    spawnPowerUp(position,type){
+    /*spawnPowerUp(position,type){
         const spawnChance = 0.15;
 
         if(random(1) > spawnChance) return;
@@ -286,7 +291,7 @@ class GameManager{
         if(powerupToSpawn){
             this.#powerups.push(powerupToSpawn);
         }
-    }
+    }*/
 
     updateScore(points){
         if(points > 0) this.#score += points;
@@ -298,7 +303,7 @@ class GameManager{
 
         if(this.#score > this.#highScore){
 
-            this.#highScore = this.score;
+            this.#highScore = this.#score;
 
             localStorage.setItem('HighScore', this.#highScore);
         }

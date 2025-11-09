@@ -36,14 +36,14 @@ class UIManager{
         push();
         
         textFont(this.uiFont);
-
-        textAlign(RIGHT, TOP);
         textSize(this.#fontSize);
         fill(this.#primaryColor);
+
+        textAlign(RIGHT, TOP);
         text(`Score: ${score}`, width - 20, 20);
         text(`Wave: ${wave}`, width - 20, 20 + this.#fontSize + 5);
 
-        textAligh(LEFT, TOP);
+        textAlign(LEFT, TOP);
         text(`Lives: ${lives}`, 20, 20);
 
         let barWidth = 200;
@@ -51,9 +51,9 @@ class UIManager{
         let barX = 20;
         let barY = 20 + this.#fontSize + 10;
 
-        notStroke();
+        noStroke();
         fill(50,0,0);
-        React(barX,barY, barWidth,barHeight);
+        rect(barX,barY, barWidth,barHeight);
 
         let currentHealthWidth = map(health, 0, maxHealth, 0, barWidth);
 
@@ -85,7 +85,7 @@ class UIManager{
         fill(this.#primaryColor);
         textFont(this.#uiFont);
         textSize(this.#titleFontSize);
-        textAligh(CENTER, CENTER);
+        textAlign(CENTER, CENTER);
         text("BULLET HELL", width / 2, height / 2 - 100);
 
         textSize(this.#fontSize);
@@ -104,33 +104,26 @@ class UIManager{
         this.#drawFullScreenOverlay();
 
         fill(this.#dangerColor);
-        textFont(this.#titleFontSize);
-        textAligh(CENTER, CENTER);
+        textFont(this.#uiFont);
+        textAlign(CENTER, CENTER);
         text("GAME OVER", width / 2, height / 2 - 100);
 
 
         fill(this.#primaryColor);
-        textFont(this.#uiFont);
         textSize(this.#titleFontSize);
-        textAlign(CENTER, CENTER);
-        text("GAME OVER", width / 2, height / 2 - 100);
-
-        fill(this.primaryColor);
-        textSize(this.#fontSize * 1.5);
-        text(`Final Score:${finalScore}`, width / 2, height / 2);
+        text(`Final Score: ${finalScore}`, width / 2, height / 2);
 
         if(isNewHighScore){
-
             fill(0,255, 0);
             textSize(this.#fontSize);
             text("Novo High Score!", width / 2, height / 2 + 50);
         }
 
-        fill(this.#primaryColor);
-            textSize(this.#fontSize);
-            text("Pressione Enter para voltar ao Menu", width / 2, height - 50);
+        fill(this.primaryColor);
+        textSize(this.#fontSize);
+        text("Pressione Enter para voltar ao Menu", width / 2, height - 50);
 
-            pop();
+        pop();
     }
 
     //tela de pause
@@ -142,7 +135,7 @@ class UIManager{
         fill(this.primaryColor);
         textFont(this.#uiFont);
         textSize(this.#titleFontSize);
-        textAligh(CENTER, CENTER);
+        textAlign(CENTER, CENTER);
         text("PAUSADO", width / 2, height / 2);
 
         textSize(this.#fontSize);
@@ -153,7 +146,7 @@ class UIManager{
 
     #drawFullScreenOverlay(){
         push();
-        netStroke();
+        noStroke();
         fill(this.#backgroundColor);
         rect(0, 0, width, height);
         pop();

@@ -1,7 +1,11 @@
 class Player extends Entity {
 
     #lives;
-    #weapon;
+    //#weapon;
+
+    #gameManager; 
+    #shootCooldown;
+    #lastShotTime;
 
     #dashcooldown;
     #isDashing;
@@ -19,12 +23,16 @@ class Player extends Entity {
     constructor(x, y, radius, speed, health, lives, weapon){
 
        
-        super(x, y, radius, speed, health);
+        super(x, y, radius, health, speed);
         
         this.#lives = lives;
-        this.#weapon = weapon;
+        //this.#weapon = weapon;
         
-        
+        this.#gameManager = gameManager;
+
+        this.#shootCooldown = 250;
+        this.#lastShotTime = 0;
+
         this.#dashcooldown = 1500;
         this.#dashDuration = 150;
         this.#dashSpeed = 900;
@@ -41,33 +49,40 @@ class Player extends Entity {
     //atualiza o player na tela de acordo com o framerate
     update(deltaTime){
 
-       if(this.isInvencible){
-        this.isInvencibleTimer -= deltaTime;
-        if(this.isInvencibleTimer === 0) this.isInvencible = false;
+       if(this.#isInvencible){
+        this.#invencibleTimer -= deltaTime;
+        if(this.#invencibleTimer === 0) this.isInvencible = false;
        }
        
        if(this.#isDashing){
-
-        this.DASH
+            this.#dashTimer -= deltaTime;
+            if(this.#dashTimer <= 0) {
+                this.#isDashing = false;
+            }
        }
 
        this.handleInput();
 
-       this.move();
+       this.move(deltaTime);
 
-       this.checkBounds(innerWidth,height);
+       this.checkBounds(width,height);
 
     }
     //inputs para movimento (wasd e setas)
     handleInput(){
+        this.velocity.set(0, 0);
+
         if(keyIsDown(87) || keyIsDown(UP_ARROW)) this.velocity.y = -1;
         if(keyIsDown(83) || keyIsDown(DOWN_ARROW)) this.velocity.y = 1;
         if(keyIsDown(65) || keyIsDown(LEFT_ARROW)) this.velocity.x =  -1;
         if(keyIsDown(68) || keyIsDown(RIGHT_ARROW)) this.velocity.x = 1;
 
         if(mouseIsPressed) this.shoot();
+
+        if(keyIsDown(32)) this.dash();
     
     }
+
     //logica de movimentação do player
    move(deltaTime){
     let finalVelocity;
@@ -82,15 +97,48 @@ class Player extends Entity {
 
     let movement = p5.Vector.mult(finalVelocity, deltaTime/ 1000)
     this.position.add(movement);
-}
+    }
+
+    checkBounds(p5Width, p5Height){
+        this.position.x = constrain(this.position.x, this.radius, p5Width - this.radius);
+        this.position.y = constrain(this.position.y, this.radius, p5Height - this.radius);
+    }
 
     shoot(){
 
-        if(this.#weapon){
+        /*if(this.#weapon){
             
             let targetAngle = antan2(mouseY - this.position.y, mouseX - this.position.x);
             let.#weapon.fire(this.position.x, this.position.y, targetAngle, this);
+        }*/
+
+        const now = millis();
+        if (now - this.#lastShotTime > this.#shootCooldown) {
+            this.#lastShotTime = now;
+
+            let targetAngle = atan2(mouseY - this.position.y, mouseX - this.position.x);
+            
+            // Stats do projétil
+            let bulletSpeed = 500;
+            let bulletDamage = 25; // Dano do tiro
+            let bulletRadius = 5;
+
+            // (x, y, angle, speed, damage, owner, radius)
+            let newBullet = new Bullet(
+                this.position.x, 
+                this.position.y, 
+                targetAngle, 
+                bulletSpeed, 
+                bulletDamage, 
+                'player', 
+                bulletRadius
+            );
+
+            // Adiciona o projétil ao jogo
+            this.#gameManager.addBullets(newBullet);
         }
+
+
     }
 
     //logica do dash
@@ -105,6 +153,7 @@ class Player extends Entity {
             this.dashTimer = this.#dashDuration;
 
             this.isInvencible = true;
+            this.#invencibleTimer = this.#dashDuration;
 
             this.#dashVector = this.velocity.copy();
 
@@ -114,10 +163,12 @@ class Player extends Entity {
     //logica do player tomar dano
     takeDamege(amount){
 
-        if(this.isInvencible) return;
+        if(this.#isInvencible) return;
 
         this.health -= amount;
-
+        this.#isInvencible = true; // Invencibilidade momentânea após ser atingido
+        this.#invencibleTimer = 1000; // 1 segundo
+        
         if(this.health <= 0){
             this.#lives--;
 
@@ -135,6 +186,9 @@ class Player extends Entity {
     //metedo para cura(usar no powerup)
     addHealth(amount){
         this.health += amount;
+        if (this.health > this.maxHealth) {
+            this.health = this.maxHealth;
+        }
     }
 
     //desenha o player na tela
@@ -147,7 +201,7 @@ class Player extends Entity {
 
         translate(this.position.x, this.position.y);
 
-        let angle = antan2(mouseY - this.position.y, mouseX - this.position.x);
+        let angle = atan2(mouseY - this.position.y, mouseX - this.position.x);
         rotate(angle);
        
         fill(0,150,255);
@@ -163,8 +217,9 @@ class Player extends Entity {
     get lives() { return this.#lives;}
     set lives(lives) { this.#lives = lives;}
 
-    get weapon() {return this.#weapon; }
+    /*get weapon() {return this.#weapon; }
     set weapon(weapon) { this.#weapon = weapon; }
+    */
 
     get dashCooldown() { return this.#dashcooldown; }
     set dashCooldown(value) { this.#dashcooldown = value; }

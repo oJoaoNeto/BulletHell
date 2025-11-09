@@ -43,8 +43,10 @@ class WaveManager {
         //se a wave não está ativa, não faz nada
         if (!this.#waveActive) return;
 
-        this.#timeSinceLastWave += deltaTime;
-        this.#spawnTimer += deltaTime;
+        let deltaTimeSeconds = deltaTime / 1000;
+
+        this.#timeSinceLastWave += deltaTimeSeconds;
+        this.#spawnTimer += deltaTimeSeconds;
 
         //verifica se é hora de criar um inimigo e se ainda há inimigos para criar
         if (this.#spawnTimer >= this.#spawnInterval && this.#enemiesToSpawn > 0) {
@@ -73,9 +75,16 @@ class WaveManager {
             x = width + offset;
             y = random(height);
         }
+        const health = 100;
+        const speed = 70 + (this.#waveNumber * 5); // Aumenta velocidade com a wave
+        const radius = 15;
+        const pattern = random(['down', 'sine_wave','chaser']); // Pega um padrão aleatório
+        const scoreValue = 10;
+        const shootCooldown = 3000; // 3 segundos
+        const damage = 10;
 
         //classe inimiga para criar
-        const newEnemy = new Enemy(x, y); 
+        const newEnemy = new Enemy(x, y, health, speed, radius, pattern, scoreValue, shootCooldown, damage); 
         this.#gameManager.addEnemy(newEnemy);
     }
 

@@ -10,14 +10,14 @@ class Entity{
   #isAlive;
 
   // Instância do p5 para criar vetores, desenhar, etc.
-  #p;
+  
 
-  constructor(p, x, y, radius, maxHealth, speed){
-    this.#p = p; // Armazena a instância do p5
+  constructor(x, y, radius, maxHealth, speed){
+     // Armazena a instância do p5
 
     // p5.Vector para posição e velocidade
-    this.#position = this.#p.createVector(x, y); // Começa em uma posição predefinida
-    this.#velocity = this.#p.createVector(0, 0); // Começa parado
+    this.#position = createVector(x, y); // Começa em uma posição predefinida
+    this.#velocity = createVector(0, 0); // Começa parado
 
     this.#maxHealth = maxHealth; // Saúde máxima definida anteriormente
     this.#health = maxHealth; // Começa com a saúde cheia
@@ -33,18 +33,18 @@ class Entity{
   // O deltaTime (tempo desde o último frame) ajuda a manter 
   // a velocidade do jogo consistente em diferentes taxas de quadros.
   update(deltaTime = 1){
-    this.move = deltaTime;
+    this.move(deltaTime);
   }
 
   // Desenha a entidade. Esta é uma função "placeholder". 
   // Cada classe filha (Player, Enemy) deve sobrescrever (override)
   // este método com seu próprio visual.
   draw(){
-    this.#p.push();
-    this.#p.fill(255,0,0); // Vermelho
-    this.#p.noStroke();
-    this.#p.ellipse(this.#position.x, this.#position.y, this.#radius * 2);
-    this.#p.pop();
+    push();
+    fill(255,0,0); // Vermelho
+    noStroke();
+    ellipse(this.#position.x, this.#position.y, this.#radius * 2);
+    pop();
   }
 
   // Move a entidade com base em sua velocidade e ângulo.
@@ -55,7 +55,7 @@ class Entity{
 
     // Aplica o movimento
     // Multiplica por deltaTime para movimento independente de frame rate
-    let movement = p5.Vector.mult(this.#velocity, deltaTime);
+    let movement = p5.Vector.mult(this.#velocity, deltaTime/1000);
     this.#position.add(movement);
   }
 
@@ -71,15 +71,17 @@ class Entity{
   // Verifica se a entidade está dentro dos limites da tela.
   // * Se sair, é marcada como "morta" (para ser removida).
   checkBound(width, height){
-    if(this.#position.x + this.#radius < 0 || this.#position.x - this.#radius < width || 
-       this.#position.y + this.#radius < 0 || this.#position.y - this.#radius > height){
+    const margin = 50;        
+
+    if(this.#position.x + this.#radius < 0 - margin ||//saiu da tela pela esquerda 
+      this.#position.x - this.#radius > width + margin || //saiu da tela pela direita
+       this.#position.y + this.#radius < 0 - margin || //saiu da tela por cima
+      this.#position.y - this.#radius > height + margin){ //saiu da tela por baixo
          this.#isAlive = false;
       }
   }
 
   // Getters e Setters
-  get p(){ return this.#p }
-
   get position() { return this.#position; }
   set position(posVec) { this.#position = posVec; }
 
