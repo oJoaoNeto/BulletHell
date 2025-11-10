@@ -2,7 +2,7 @@ class GameManager{
   #player; 
   #enemies; 
   #bullets;
-  //#powerups;
+  #powerups;
 
 
   #uiManager;
@@ -18,7 +18,7 @@ class GameManager{
 
     this.#enemies = [];
     this.#bullets = [];
-    //this.#powerups = [];
+    this.#powerups = [];
 
     //passa a instancia do GameManeger para o WaveManeger
     this.#waveManager = new WaveManager(this);
@@ -35,7 +35,7 @@ class GameManager{
   get player() { return this.#player; }
   get enemies() { return this.#enemies; }
   get bullets() { return this.#bullets; }
-  //get powerups() {return this.#powerups; }
+  get powerups() {return this.#powerups; }
 
   get score() {return this.#score; }
   get highScore() {return this.#highScore; }
@@ -55,7 +55,7 @@ class GameManager{
 
     //resetar a posição das entidades
     this.#enemies = [];
-    //this.#powerups = [];
+    this.#powerups = [];
     this.#bullets = [];
 
     this.#player = new Player(width/2, height - 50, 15, 300, 100, 3);
@@ -109,7 +109,7 @@ class GameManager{
         if(this.#player) this.#player.draw();
         this.#enemies.forEach(e => e.draw());
         this.#bullets.forEach(e => e.draw());
-        //this.#powerups.forEach(e => e.draw());
+        this.#powerups.forEach(e => e.draw());
 
         //HUD
         this.#uiManager.drawHud(
@@ -178,7 +178,7 @@ class GameManager{
     this.#checkPlayerBulletsVsEnemies(playerBullets);
     this.#checkEnemyBulletsVsPlayer(enemyBullets);
     this.#checkEnemyVsPlayer();
-    //this.#checkPlayerVsPowerUps();
+    this.#checkPlayerVsPowerUps();
 
 
   }
@@ -198,7 +198,7 @@ class GameManager{
 
           if(result.died){ 
             this.updateScore(result.score);
-            // this.spawnPowerUp(enemy.position, 'random');
+            this.spawnPowerUp(enemy.position, 'random');
           }            
         }
       }
@@ -229,24 +229,21 @@ class GameManager{
     }
   }
 
-  /* #checkPlayerVsPowerUps(){
+   #checkPlayerVsPowerUps(){
+      for(let powerup of this.#powerups){
+          if(!powerup.isAlive) continue;
 
-        for(let powerup of this.#powerups){
-
-            if(!powerup.isAlive) continue;
-
-            if(this.#isColliding(powerup, this.#player)){
-                powerup.apply(this.#player);
-                powerup.die();
-            }
-        }
-    }*/
+          if(GameManager.isColliding(powerup, this.#player)){
+              powerup.apply(this.#player);
+          }
+      }
+    }
 
   removeDeadEntities(){
 
     this.#enemies = this.#enemies.filter(enemy => enemy.isAlive);
     this.#bullets = this.#bullets.filter(bullets => bullets.isAlive);
-    //this.#powerups = this.#powerups.filter(powerups => powerups.isAlive);
+    this.#powerups = this.#powerups.filter(powerups => powerups.isAlive);
   }
 
   addEnemy(enemy){
@@ -256,42 +253,44 @@ class GameManager{
   addBullets(bullet){
     this.#bullets.push(bullet);
   }
+
   /** 
     @param {p5.vector} position
     */
-  /*spawnPowerUp(position,type){
-        const spawnChance = 0.15;
 
-        if(random(1) > spawnChance) return;
+  spawnPowerUp(position,type){
+      const spawnChance = 0.15;
 
-        let powerupToSpawn;
+      if(random(1) > spawnChance) return;
 
-        if(type === 'random'){
+      let powerupToSpawn;
 
-            const types = ['health', 'speed', 'shield', 'rapidFire'];
+      if(type === 'random'){
 
-            type = random(types);
-        }
+          const types = ['health', 'speed', 'shield', 'rapidFire'];
 
-        switch (type){
-            case 'health':
-                powerupToSpawn = new HealthPowerUp(position.x,position.y);
-                break;
-            case 'speed':
-                powerupToSpawn = new SpeedPowerUp(position.x, position.y);
-                break;
-            case 'shield':
-                powerupToSpawn = new ShieldPowerUp(position.x, position.y);
-                break;
-            case 'rapidFire':
-                powerupToSpawn = new RapidFirePowerUp(position.x, position.y);
-                break;
-        }
+          type = random(types);
+      }
 
-        if(powerupToSpawn){
-            this.#powerups.push(powerupToSpawn);
-        }
-    }*/
+      switch (type){
+          case 'health':
+              powerupToSpawn = new HealthPowerUp(position.x,position.y);
+              break;
+          case 'speed':
+              powerupToSpawn = new SpeedPowerUp(position.x, position.y);
+              break;
+          case 'shield':
+              powerupToSpawn = new ShieldPowerUp(position.x, position.y);
+              break;
+          case 'rapidFire':
+              powerupToSpawn = new RapidFirePowerUp(position.x, position.y);
+              break;
+      }
+
+      if(powerupToSpawn){
+          this.#powerups.push(powerupToSpawn);
+      }
+  }
 
   updateScore(points){
     if(points > 0) this.#score += points;
