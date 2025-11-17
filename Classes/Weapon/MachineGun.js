@@ -34,10 +34,10 @@ class MachineGun extends Weapon {
             if (this.#currentAmmo <= 0) break;
 
             this.#currentAmmo--;
-
+ 
             setTimeout(() => {
                 const ownerPos = this.owner.position;
-                const bulletSpeed = 12;
+                const bulletSpeed = 450;
                 const bulletRadius = 5;
                 const ownerType = this.owner.type || 'player';
                 

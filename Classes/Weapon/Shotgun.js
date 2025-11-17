@@ -13,7 +13,7 @@ class Shotgun extends Weapon {
             const pelletAngle = angle + random(-spreadAngle / 2, spreadAngle / 2);
             
             const ownerPos = this.owner.position;
-            const bulletSpeed = 10;
+            const bulletSpeed = 250;
             const bulletRadius = 4;
             const ownerType = this.owner.type || 'player';
             

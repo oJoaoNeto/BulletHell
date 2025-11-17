@@ -176,7 +176,7 @@ class GameManager{
     if(!this.#player.isAlive) return;
 
     const playerBullets = this.#bullets.filter(b => b.owner === 'player' && b.isAlive);
-    const enemyBullets = this.bullets.filter(b => b.owner === 'enemy' && b.isAlive);
+    const enemyBullets = this.#bullets.filter(b => b.owner === 'enemy' && b.isAlive);
 
     //metodos de colisao
     this.#checkPlayerBulletsVsEnemies(playerBullets);
@@ -228,7 +228,11 @@ class GameManager{
 
       if(GameManager.isColliding(enemy, this.#player)){
         this.#player.takeDamage(10); // Dano de colisão
-        enemy.takeDamage(1000); // Inimigo morre ao colidir
+        if(enemy.type === 'boss' && enemy.type === 'miniboss'){ 
+          enemy.takeDamage(10); // Inimigo morre ao colidir
+        } else {
+          enemy.takeDamage(1000)
+        }
       }
     }
   }

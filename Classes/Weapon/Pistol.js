@@ -12,7 +12,7 @@ class Pistol extends Weapon {
         const finalAngle = angle + random(-spread, spread);
 
         const ownerPos = this.owner.position;
-        const bulletSpeed = 8;
+        const bulletSpeed = 350;
         const bulletRadius = 5;
         const ownerType = this.owner.type || 'player';
 

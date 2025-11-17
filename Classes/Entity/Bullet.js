@@ -31,11 +31,10 @@ class Bullet extends Entity{
 
   update(deltaTime, p5Width, p5Height){
 
-    super.update(deltaTime);
-
+    let movement = p5.Vector.mult(this.velocity, deltaTime/1000);
+    this.position.add(movement);
     this.checkBound(p5Width,p5Height);
-  }
-
+  } 
 
   die(){
 

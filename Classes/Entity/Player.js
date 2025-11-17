@@ -169,7 +169,7 @@ class Player extends Entity {
   draw() {
     
     if (this.#isDashing){
-      for (let i = 0; i < this.#dashTrailMaxLength.length; i++){
+      for (let i = 0; i < this.#dashTrail.length; i++){
 
         let trailPos = this.#dashTrail[i];
         let alpha = map(i, 0, this.#dashTrailMaxLength - 1, 50, 200) //Arquivos de Programas
