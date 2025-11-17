@@ -110,6 +110,21 @@ class Player extends Entity {
   #dashTimer;
   #dashVector;
 
+    // --- NOVAS PROPRIEDADES PARA POWER-UPS ---
+    #activePowerUps; // Lista de power-ups cronometrados ativos
+    #shield;          // Pontos de escudo
+    hasDoubleShot;  // Flag para o DoubleShotPowerUp
+    // ------------------------------------------
+
+    constructor(x, y, radius, speed, health, lives, weapon){
+        
+        super(x, y, radius, health, speed);
+        
+        this.#lives = lives;
+        this.#gameManager = gameManager; // Assumindo que 'gameManager' é uma var global
+        
+        this.#shootCooldown = 250; // 250ms de delay
+        this.#lastShotTime = 0;
   #isInvencible;
   #invencibleTimer;
   #invencibleDuration;
@@ -119,6 +134,88 @@ class Player extends Entity {
 
     super(x, y, radius, health, speed);
 
+        this.#isInvencible = false;
+        this.#invencibleDuration = 2500; // Duração da invencibilidade ao renascer
+        this.#invencibleTimer = 0;
+
+        // --- INICIALIZAÇÃO DOS POWER-UPS ---
+        this.#activePowerUps = [];
+        this.#shield = 0;
+        this.hasDoubleShot = false; // Começa sem tiro duplo
+        // -----------------------------------
+    }
+
+   
+    //atualiza o player na tela de acordo com o framerate
+    update(deltaTime){
+
+       if(this.#isInvencible){
+            this.#invencibleTimer -= deltaTime;
+            // Checava com '=== 0', o correto é '<= 0'
+            if(this.#invencibleTimer <= 0) {
+                this.#isInvencible = false; 
+                this.#invencibleTimer = 0;
+            }
+       }
+       
+       if(this.#isDashing){
+            this.#dashTimer -= deltaTime;
+            if(this.#dashTimer <= 0) {
+                this.#isDashing = false;
+            }
+       }
+
+       // NOVO: Atualiza os power-ups ativos
+       this.#updatePowerUps(deltaTime);
+
+       this.handleInput();
+       this.move(deltaTime);
+       this.checkBounds(width,height);
+    }
+
+    // NOVO: Método para gerenciar power-ups ativos
+    #updatePowerUps(deltaTime) {
+        // Itera de trás para frente para poder remover itens
+        for (let i = this.#activePowerUps.length - 1; i >= 0; i--) {
+            const powerUp = this.#activePowerUps[i];
+            
+            // O update do power-up verifica a duração
+            powerUp.update(deltaTime, this); 
+            
+            // Se o power-up se marcou como não aplicado (tempo acabou)
+            if (!powerUp.isApplied) {
+                this.#activePowerUps.splice(i, 1); // Remove da lista
+            }
+        }
+    }
+
+    //inputs para movimento (wasd e setas)
+    handleInput(){
+        this.velocity.set(0, 0);
+
+        if(keyIsDown(87) || keyIsDown(UP_ARROW)) this.velocity.y = -1;
+        if(keyIsDown(83) || keyIsDown(DOWN_ARROW)) this.velocity.y = 1;
+        if(keyIsDown(65) || keyIsDown(LEFT_ARROW)) this.velocity.x =  -1;
+        if(keyIsDown(68) || keyIsDown(RIGHT_ARROW)) this.velocity.x = 1;
+
+        if(mouseIsPressed) this.shoot();
+
+        if(keyIsDown(32)) this.dash();
+    }
+
+    //logica de movimentação do player
+    move(deltaTime){
+        let finalVelocity;
+        
+        if(this.#isDashing) finalVelocity = this.#dashVector.copy().setMag(this.#dashSpeed);
+        else {
+            finalVelocity = this.velocity.copy();
+            if(finalVelocity.mag() > 0) finalVelocity.setMag(this.speed);
+        }
+
+        let movement = p5.Vector.mult(finalVelocity, deltaTime/ 1000)
+        this.position.add(movement);
+    }
     this.#lives = lives;
     //this.#weapon = weapon;
 
@@ -215,6 +312,53 @@ class Player extends Entity {
     this.position.y = constrain(this.position.y, this.radius, p5Height - this.radius);
   }
 
+    // MODIFICADO: Lógica de tiro atualizada para power-ups
+    shoot(){
+        const now = millis();
+        // MODIFICADO: usa o getter 'fireRate'
+        if (now - this.#lastShotTime > this.fireRate) { 
+            this.#lastShotTime = now;
+
+            let targetAngle = atan2(mouseY - this.position.y, mouseX - this.position.x);
+            
+            // Stats do projétil
+            let bulletSpeed = 500;
+            let bulletDamage = 25;
+            let bulletRadius = 5;
+
+            // MODIFICADO: Checa se tem tiro duplo
+            if (this.hasDoubleShot) {
+                // Atira dois projéteis com um pequeno desvio
+                const offsetAngle = 0.1; // Radianos
+                
+                let bullet1 = new Bullet(
+                    this.position.x, this.position.y, 
+                    targetAngle - offsetAngle, 
+                    bulletSpeed, bulletDamage, 'player', bulletRadius
+                );
+                let bullet2 = new Bullet(
+                    this.position.x, this.position.y, 
+                    targetAngle + offsetAngle, 
+                    bulletSpeed, bulletDamage, 'player', bulletRadius
+                );
+                
+                this.#gameManager.addBullets(bullet1);
+                this.#gameManager.addBullets(bullet2);
+            } else {
+                // Lógica de tiro normal
+                let newBullet = new Bullet(
+                    this.position.x, this.position.y, 
+                    targetAngle, 
+                    bulletSpeed, bulletDamage, 'player', bulletRadius
+                );
+                this.#gameManager.addBullets(newBullet);
+            }
+        }
+    }
+
+    //logica do dash
+    dash(){
+        const now = millis();
   shoot(){
 
     // MODIFICADO: Lógica de tiro atualizada para power-ups
@@ -302,6 +446,12 @@ class Player extends Entity {
   //logica do dash
   dash(){
 
+            this.#isDashing = true;
+            this.#lastDashTime = now;
+            this.#dashTimer = this.#dashDuration;
+
+            this.#isInvencible = true;
+            this.#invencibleTimer = this.#dashDuration; // Invencível durante o dash
     const now = millis();
 
     if(now - this.#lastDashTime > this.#dashcooldown && !this.#isDashing){
@@ -316,6 +466,61 @@ class Player extends Entity {
       this.#lastDashTime = now;
       this.dashTimer = this.#dashDuration;
 
+            if (this.#dashVector.mag() === 0) { // Se parado, dá dash para frente
+                 this.#dashVector.set(1, 0); // Ex: dash para a direita
+            }
+          
+            this.#dashVector.normalize();  
+        }
+    }
+
+    // MODIFICADO: Lógica de dano com escudo e correções
+    takeDamage(amount){
+
+        // Se o escudo existir, ele absorve o dano primeiro
+        if (this.#shield > 0) {
+            const damageToShield = Math.min(this.#shield, amount);
+            this.#shield -= damageToShield;
+            amount -= damageToShield;
+            
+            // Se o escudo absorveu tudo, saia
+            if (amount === 0) return;
+        }
+
+        // Se o dano restante for > 0, checa a invencibilidade
+        if(this.#isInvencible) return;
+
+        // Aplica dano à vida (usando o método da classe base)
+        super.takeDamage(amount); // Isso atualiza 'this.health'
+
+        // Ativa a invencibilidade pós-dano
+        this.#isInvencible = true; 
+        this.#invencibleTimer = 1000; // 1 segundo de invencibilidade
+        
+        if(this.health <= 0){
+            this.#lives--;
+
+            if(this.#lives <= 0) {
+                this.isAlive = false; // Fim de jogo
+            } else {
+                // Renasce
+                this.health = this.maxHealth;
+                this.position = createVector(width / 2, height - 50); // Posição inicial
+
+                // Invencibilidade de renascimento
+                this.#isInvencible = true;
+                // CORREÇÃO: 'isInvencibleTimer' estava público
+                this.#invencibleTimer = this.#invencibleDuration; 
+            }
+        }
+    } 
+
+    //metedo para cura (usar no powerup)
+    addHealth(amount){
+        this.health += amount;
+        if (this.health > this.maxHealth) {
+            this.health = this.maxHealth;
+        }
       this.#isInvencible = true;
       this.#invencibleTimer = this.#dashDuration;
 
