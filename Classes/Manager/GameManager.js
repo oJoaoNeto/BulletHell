@@ -58,8 +58,7 @@ class GameManager{
     this.#powerups = [];
     this.#bullets = [];
 
-    this.#player = new Player(width/2, height - 50, 15, 300, 100, 3);
-
+this.#player = new Player(width/2, height - 50, 15, 300, 100, 3, this);
     //iniciar a primeira wave
     this.#waveManager.startWave(this.#currentWave)
   }
@@ -75,21 +74,27 @@ class GameManager{
       this.#player.update(deltaTime);
       this.#waveManager.update(deltaTime);
 
-      // Atualiza inimigos e coleta projéteis
+      
       for (let i = this.#enemies.length - 1; i >= 0; i--) {
         const enemy = this.#enemies[i];
-        const newBullet = enemy.update(deltaTime, this.#player); // Passa o player como alvo
-        if (newBullet) {
-          this.addBullets(newBullet);
+        const newBullets = enemy.update(deltaTime, this.#player);
+
+        if (newBullets) {
+          // Se for array, adiciona todas as balas
+          if (Array.isArray(newBullets)) {
+            newBullets.forEach(bullet => this.addBullets(bullet));
+          } else {
+            // Se for bala única
+            this.addBullets(newBullets);
+          }
         }
       }
-      // Atualiza projéteis
+
       this.#bullets.forEach(b => b.update(deltaTime, width, height));
 
       this.checkCollisions();
       this.removeDeadEntities();
 
-      // Correção: Lógica de próxima wave
       if(this.#waveManager.isWaveClear()){
         this.nextWave();
       }
@@ -97,7 +102,6 @@ class GameManager{
   }
 
 
-  //desenha o jogo como um todo usa o switch para definir o que acntece em cada gamestate
   drawGame(){
     background(0)
 
@@ -114,7 +118,7 @@ class GameManager{
         //HUD
         this.#uiManager.drawHud(
           this.#player.health,
-          this.player.maxHealth,
+          this.#player.maxHealth,
           this.#player.lives,
           this.#score,
           this.#currentWave,
@@ -193,10 +197,10 @@ class GameManager{
 
         if(GameManager.isColliding(bullet, enemy)){
 
-          const result = enemy.takeDamage(bullet.damage); 
+          const result = enemy.takeDamage(bullet.damage);
           bullet.die(); 
 
-          if(result.died){ 
+          if(result && result.died){
             this.updateScore(result.score);
             this.spawnPowerUp(enemy.position, 'random');
           }            
