@@ -1,53 +1,53 @@
 class Bullet extends Entity{
 
-    #damage;
-    #owner;
+  #damage;
+  #owner;
 
 
-    constructor(x,y, angle, speed, damage, owner, radius){
+  constructor(x,y, angle, speed, damage, owner, radius){
 
-        super(x,y,radius,1,speed);
-        
-
-        this.#damage = damage;
-        this.#owner = owner;
-
-        this.angle = angle;
-
-        this.health = 1;
-    }
+    super(x,y,radius,1,speed);
 
 
-    get damage() { return this.#damage; }
+    this.#damage = damage;
+    this.#owner = owner;
 
-    set damage(damage) { this.#damage = damage; }
+    this.angle = angle;
 
-    get owner() {
-        return this.#owner;
-    }
+    this.health = 1;
 
-    set owner(owner) { this.#owner = owner; }
-
-
-    update(deltaTime, p5Width, p5Height){
-
-        super.update(deltaTime);
-
-        this.checkBound(p5Width,p5Height);
-    }
+    this.velocity = createVector(cos(angle), sin(angle)).mult(speed);
+  }
 
 
-    die(){
+  get damage() { return this.#damage; }
 
-        this.isAlive = false;
-    }
+  set damage(damage) { this.#damage = damage; }
 
-    draw(){
-        push();
-        fill(255,255,0);
-        noStroke();
+  get owner() { return this.#owner;}
 
-        circle(this.position.x,this.position.y,this.radius * 2);
-        pop();
-    }
+  set owner(owner) { this.#owner = owner; }
+
+
+  update(deltaTime, p5Width, p5Height){
+
+    super.update(deltaTime);
+
+    this.checkBound(p5Width,p5Height);
+  }
+
+
+  die(){
+
+    this.isAlive = false;
+  }
+
+  draw(){
+    push();
+    fill(255,255,0);
+    noStroke();
+
+    circle(this.position.x,this.position.y,this.radius * 2);
+    pop();
+  }
 }

@@ -8,11 +8,12 @@ class Enemy extends Entity{
   #hasEnteredScreen;
   #spawnTimestamp;
   
-  
+  #weapon;
+
   #preferredDistance; // Distância  do player
   #aiState; // Estados: 'approach', 'maintain', 'retreat'
 
-  constructor(x, y, health, speed, radius, type, pattern, scoreValue, shootCooldown, damage){
+  constructor(x, y, health, speed, radius, type, pattern, scoreValue, shootCooldown, damage,weapon){
     super(x, y, radius, health, speed);
 
     this.#type = type;
@@ -20,6 +21,8 @@ class Enemy extends Entity{
     this.#scoreValue = scoreValue;
     this.#shootCooldown = shootCooldown;
     this.#damage = damage;
+
+    this.#weapon = weapon;
 
     this.#lastShotTime = millis();
 
@@ -108,8 +111,11 @@ class Enemy extends Entity{
     this.move(deltaTime, target);
     this.checkBound(width, height);
 
-    const newBullet = this.attack(target);
-    return newBullet;
+    if(target && this.#weapon){
+      let angle = p5.Vector.sub(target.position, tih.position).heading();
+      this.#weapon.fire(angle);      
+    }  
+    return null;
   }
 
 

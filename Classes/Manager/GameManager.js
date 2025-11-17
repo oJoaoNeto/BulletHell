@@ -58,7 +58,7 @@ class GameManager{
     this.#powerups = [];
     this.#bullets = [];
 
-this.#player = new Player(width/2, height - 50, 15, 300, 100, 3, this);
+    this.#player = new Player(width/2, height - 50, 15, 300, 100, 3, this);
     //iniciar a primeira wave
     this.#waveManager.startWave(this.#currentWave)
   }

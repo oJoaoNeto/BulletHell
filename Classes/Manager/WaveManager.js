@@ -118,7 +118,8 @@ class WaveManager {
     if (typeRoll < 40) { // 40% - Shooter
       const scoreValue = 15;
       const shootCooldown = 800;
-      enemy = new ShooterEnemy(x, y, health, speed, radius, scoreValue, shootCooldown, damage);
+      const weapon = new Pistol(this, damage, shootCooldown, 0.8)
+      enemy = new ShooterEnemy(x, y, health, speed, radius, scoreValue, shootCooldown, damage,weapon);
     } else if (typeRoll < 70) { // 30% - Chaser
       const scoreValue = 10;
       const shootCooldown = 2500;
