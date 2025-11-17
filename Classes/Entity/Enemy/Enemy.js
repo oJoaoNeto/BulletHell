@@ -63,10 +63,6 @@ class Enemy extends Entity{
         this.#preferredDistance = 200;
         this.#shootCooldown = 500;
         break;
-        
-      default:
-        this.#preferredDistance = 150;
-        this.#shootCooldown = 1500;
     }
   }
 
@@ -121,7 +117,7 @@ class Enemy extends Entity{
     if (!target) {
       this.velocity.set(0, this.speed);
     } else {
-      // Usa o padrão como comportamento principal
+      
       switch(this.#pattern){
         case 'chaser':
           this.#moveChaser(target);
@@ -146,13 +142,10 @@ class Enemy extends Entity{
         case 'still':
           this.velocity.set(0, 0);
           break;
-          
-        default:
-          this.velocity.set(0, this.speed);
       }
     }
 
-    // Normaliza e aplica velocidade
+    // Normaliza a velocidade
     if (this.velocity.mag() > 0) {
       this.velocity.normalize();
       this.velocity.mult(this.speed);
@@ -164,7 +157,7 @@ class Enemy extends Entity{
 
   
   
-  // Persegue  o player
+  // Persegue o player
   #moveChaser(target) {
     let toPlayer = p5.Vector.sub(target.position, this.position);
     this.velocity = toPlayer.copy();
@@ -343,8 +336,6 @@ class Enemy extends Entity{
       case 'boss':
         fill(255, 50, 50, 200); // Vermelho intenso
         break;
-      default:
-        fill(150, 200); // Cinza
     }
 
     noStroke();
