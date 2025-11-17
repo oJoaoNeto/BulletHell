@@ -1,18 +1,9 @@
 class Player extends Entity {
 
-<<<<<<< HEAD
     #lives;
     #gameManager; 
     #shootCooldown; 
     #lastShotTime;
-=======
-  #lives;
-  //#weapon;
-
-  #gameManager; 
-  #shootCooldown; 
-  #lastShotTime;
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
   #dashcooldown;
   #isDashing;
@@ -23,7 +14,6 @@ class Player extends Entity {
   #dashTimer;
   #dashVector;
 
-<<<<<<< HEAD
     // --- NOVAS PROPRIEDADES PARA POWER-UPS ---
     #activePowerUps; // Lista de power-ups cronometrados ativos
     #shield;          // Pontos de escudo
@@ -39,18 +29,15 @@ class Player extends Entity {
         
         this.#shootCooldown = 250; // 250ms de delay
         this.#lastShotTime = 0;
-=======
   #isInvencible;
   #invencibleTimer;
   #invencibleDuration;
 
   constructor(x, y, radius, speed, health, lives, gameManager){
 
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
     super(x, y, radius, health, speed);
 
-<<<<<<< HEAD
         this.#isInvencible = false;
         this.#invencibleDuration = 2500; // Duração da invencibilidade ao renascer
         this.#invencibleTimer = 0;
@@ -133,7 +120,6 @@ class Player extends Entity {
         let movement = p5.Vector.mult(finalVelocity, deltaTime/ 1000)
         this.position.add(movement);
     }
-=======
     this.#lives = lives;
     //this.#weapon = weapon;
 
@@ -208,14 +194,12 @@ class Player extends Entity {
     let movement = p5.Vector.mult(finalVelocity, deltaTime/ 1000)
     this.position.add(movement);
   }
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
   checkBounds(p5Width, p5Height){
     this.position.x = constrain(this.position.x, this.radius, p5Width - this.radius);
     this.position.y = constrain(this.position.y, this.radius, p5Height - this.radius);
   }
 
-<<<<<<< HEAD
     // MODIFICADO: Lógica de tiro atualizada para power-ups
     shoot(){
         const now = millis();
@@ -263,7 +247,6 @@ class Player extends Entity {
     //logica do dash
     dash(){
         const now = millis();
-=======
   shoot(){
 
     /*if(this.#weapon){
@@ -300,29 +283,24 @@ class Player extends Entity {
 
 
   }
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
   //logica do dash
   dash(){
 
-<<<<<<< HEAD
             this.#isDashing = true;
             this.#lastDashTime = now;
             this.#dashTimer = this.#dashDuration;
 
             this.#isInvencible = true;
             this.#invencibleTimer = this.#dashDuration; // Invencível durante o dash
-=======
     const now = millis();
 
     if(now - this.#lastDashTime > this.#dashcooldown && !this.#isDashing){
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
       this.#isDashing = true;
       this.#lastDashTime = now;
       this.dashTimer = this.#dashDuration;
 
-<<<<<<< HEAD
             if (this.#dashVector.mag() === 0) { // Se parado, dá dash para frente
                  this.#dashVector.set(1, 0); // Ex: dash para a direita
             }
@@ -378,7 +356,6 @@ class Player extends Entity {
         if (this.health > this.maxHealth) {
             this.health = this.maxHealth;
         }
-=======
       this.#isInvencible = true;
       this.#invencibleTimer = this.#dashDuration;
 
@@ -415,11 +392,9 @@ class Player extends Entity {
     this.health += amount;
     if (this.health > this.maxHealth) {
       this.health = this.maxHealth;
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
     }
   }
 
-<<<<<<< HEAD
     //desenha o player na tela
     draw(){
         // CORREÇÃO: Math.floor(timer / 100) % 2 === 0
@@ -430,7 +405,6 @@ class Player extends Entity {
         
         push();
         translate(this.position.x, this.position.y);
-=======
   //desenha o player na tela
   draw(){
 
@@ -438,11 +412,9 @@ class Player extends Entity {
       if(Math.floor(this.#invencibleTimer / 100) % 2 === 0) return;
 
     push();
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
     translate(this.position.x, this.position.y);
 
-<<<<<<< HEAD
         fill(255);
         // O triângulo "nariz"
         triangle(this.radius, 0, 0, -this.radius / 2, 0, this.radius / 2);
@@ -487,7 +459,6 @@ class Player extends Entity {
     // NOVO: Getter/Setter para o RapidFirePowerUp
     get fireRate() { return this.#shootCooldown; }
     set fireRate(value) { this.#shootCooldown = value; }
-=======
     let angle = atan2(mouseY - this.position.y, mouseX - this.position.x);
     rotate(angle);
 
@@ -507,20 +478,16 @@ class Player extends Entity {
   /*get weapon() {return this.#weapon; }
     set weapon(weapon) { this.#weapon = weapon; }
     */
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
 
   get dashCooldown() { return this.#dashcooldown; }
   set dashCooldown(value) { this.#dashcooldown = value; }
 
-<<<<<<< HEAD
     get isDashing() { return this.#isDashing; }
     get isInvencible() { return this.#isInvencible; }
     
     // NOVO: Getter para o HUD
     get shield() { return this.#shield; }
 }
-=======
   get isDashing() { return this.#isDashing; }
   get isInvencible() { return this.#isInvencible; }
 }
->>>>>>> 13c0b9f78745912ad0f7a41a1d4ae8674500ba15
